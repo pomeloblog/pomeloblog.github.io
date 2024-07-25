@@ -22,6 +22,7 @@
 <h3 id="Node-js-和-npm"><a href="#Node-js-和-npm" class="headerlink" title="Node.js 和 npm"></a>Node.js 和 npm</h3><p>之所以安装 node 是因为我们搭建博客所使用的框架需要用到 node 环境<br>进入node的<a href="https://nodejs.org/zh-cn">官网</a>，点击下载（LTS是长期支持的版本），然后也是一路next<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/node01.png" alt="node"><br>安装完成后，在Windows环境下，打开 cmd，然后输入<code>node -v</code>，如果安装正常，你应该看到 node 版本号的输出。<br>npm 是什么玩意？其实 npm 是 Node.js 的包管理工具（package manager），也就是用于安装依赖的工具。<br>npm 在安装 Node.js 的时候顺带装好了，我们只需要在 cmd 中输入<code>npm -v</code>，如果安装正常，你应该看到 npm 版本号的输出。<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/node02.png" alt="node"></p>
 <h2 id="安装框架"><a href="#安装框架" class="headerlink" title="安装框架"></a>安装框架</h2><h3 id="hexo"><a href="#hexo" class="headerlink" title="hexo"></a>hexo</h3><p>做完以上的步骤，我们就把框架所需要的工具和环境准备好了，现在需要的就是安装一个框架。框架可以把你写的 markdown 文件一键转换成静态页面，你所需要做的仅仅是 markdown 文档的编写以及 hexo 相关命令的调用，大大简化了搭建博客的过程。通过安装 hexo 的插件，甚至可以实现一键部署到github pages，十分方便。<br>我这里使用的是 <a href="https://hexo.io/zh-cn/index.html">hexo</a>，hexo 是一个快速、简洁且高效的博客框架。<br>首先在 cmd 中使用 npm 包管理器全局安装 hexo:</p>
 <figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ npm install -g hexo-cli </span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>注意，使用 npm 安装 hexo 的时候，你可能会遇到如下报错（如果没有可以直接跳过此处）:</p>
 <figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">npm http GET https://registry.npmjs.org/yo</span><br><span class="line">npm ERR! network read ECONNRESET</span><br><span class="line">npm ERR! network This is most likely <span class="keyword">not</span> a problem with npm itself</span><br><span class="line">npm ERR! network and is related to network connectivity.</span><br><span class="line">npm ERR! network <span class="keyword">In</span> most cases you are behind a proxy or have bad network settings.</span><br><span class="line">npm ERR! network</span><br><span class="line">npm ERR! network <span class="keyword">If</span> you are behind a proxy, please make sure that the</span><br><span class="line">npm ERR! network &#x27;proxy&#x27; config is <span class="built_in">set</span> properly.  See: &#x27;npm <span class="built_in">help</span> config&#x27;</span><br></pre></td></tr></table></figure>
@@ -29,17 +30,20 @@
 <figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ npm config <span class="built_in">set</span> registry https://mirrors.huaweicloud.com/repository/npm/</span><br></pre></td></tr></table></figure>
 <p>然后再次在 cmd 中输入:</p>
 <figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ npm config get registry</span><br></pre></td></tr></table></figure>
-<p>你将会看到控制台上输出了你刚才设置的网址<br>这个镜像是国内华为的，当然，你也可以设置其他的，具体网址网上可以搜到</p>
+<p>你将会看到控制台上输出了你刚才设置的网址<br>这个镜像是国内华为的，当然，你也可以设置其他的，具体网址网上可以搜到<br><br/><br>安装完成后，就可以进行博客项目的初始化了<br>新建一个文件夹用于存放你要写的博客，然后在该文件夹中打开 cmd，输入:<br><code>$ hexo init</code><br>这条命令会从 hexo 官方仓库中克隆一些基础项目文件到你新建的文件夹中，文件夹中会多这些文件<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo01.png" alt="hexo"><br>接下来安装项目所需的相关依赖，在 cmd 中输入:<br><code> $ npm install</code><br>安装完成之后你会看到类似如下输出:<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo02.png" alt="hexo"><br>这里简单介绍一下各个文件或者文件夹的作用:</p>
 </blockquote>
-<p>安装完成后，就可以进行博客项目的初始化了<br>新建一个文件夹用于存放你要写的博客，然后在该文件夹中打开 cmd，输入:</p>
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ hexo init </span><br></pre></td></tr></table></figure>
-
-<p>这条命令会从 hexo 官方仓库中克隆一些基础项目文件到你新建的文件夹中，文件夹中会多这些文件<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo01.png" alt="hexo"><br>接下来安装项目所需的相关依赖，在 cmd 中输入:</p>
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ npm install </span><br></pre></td></tr></table></figure>
-<p>安装完成之后你会看到类似如下输出:<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo02.png" alt="hexo"></p>
-<h2 id="这里简单介绍一下各个文件或者文件夹的作用-scaffolds-这是你博客的模板文件夹，你可以在这里编写模板文件-source-这是你博客的源码文件夹-draft-这是你博客的草稿文件夹，你可以在这里编写-markdown-草稿-posts-这是你博客的博客文件夹，你可以在这里编写-markdown-文档，这里存放的都是你要发布到博客网站上的文档-public-执行hexo-generate后生成的编译结果文件夹，你可以在这里查看你的博客-themes-这是你博客的主题文件夹，你可以把喜欢的主题放到这个文件夹中-config-yml-这是你博客的配置文件，你可以在这里配置你的博客名称、主题、标签、分类、作者、邮箱、GitHub-链接等"><a href="#这里简单介绍一下各个文件或者文件夹的作用-scaffolds-这是你博客的模板文件夹，你可以在这里编写模板文件-source-这是你博客的源码文件夹-draft-这是你博客的草稿文件夹，你可以在这里编写-markdown-草稿-posts-这是你博客的博客文件夹，你可以在这里编写-markdown-文档，这里存放的都是你要发布到博客网站上的文档-public-执行hexo-generate后生成的编译结果文件夹，你可以在这里查看你的博客-themes-这是你博客的主题文件夹，你可以把喜欢的主题放到这个文件夹中-config-yml-这是你博客的配置文件，你可以在这里配置你的博客名称、主题、标签、分类、作者、邮箱、GitHub-链接等" class="headerlink" title="这里简单介绍一下各个文件或者文件夹的作用:-   scaffolds: 这是你博客的模板文件夹，你可以在这里编写模板文件-   source: 这是你博客的源码文件夹    -   _draft: 这是你博客的草稿文件夹，你可以在这里编写 markdown 草稿    -   _posts: 这是你博客的博客文件夹，你可以在这里编写 markdown 文档，这里存放的都是你要发布到博客网站上的文档-   public: 执行hexo generate后生成的编译结果文件夹，你可以在这里查看你的博客-   themes: 这是你博客的主题文件夹，你可以把喜欢的主题放到这个文件夹中-   _config.yml: 这是你博客的配置文件，你可以在这里配置你的博客名称、主题、标签、分类、作者、邮箱、GitHub 链接等"></a>这里简单介绍一下各个文件或者文件夹的作用:<br>-   scaffolds: 这是你博客的模板文件夹，你可以在这里编写模板文件<br>-   source: 这是你博客的源码文件夹<br>    -   _draft: 这是你博客的草稿文件夹，你可以在这里编写 markdown 草稿<br>    -   _posts: 这是你博客的博客文件夹，你可以在这里编写 markdown 文档，这里存放的都是你要发布到博客网站上的文档<br>-   public: 执行<code>hexo generate</code>后生成的编译结果文件夹，你可以在这里查看你的博客<br>-   themes: 这是你博客的主题文件夹，你可以把喜欢的主题放到这个文件夹中<br>-   _config.yml: 这是你博客的配置文件，你可以在这里配置你的博客名称、主题、标签、分类、作者、邮箱、GitHub 链接等</h2><p>在这些文件或文件夹中除了配置要用到 _config.yml 文件外，用到最多的就是 _post 文件夹了。<br>刚刚使用<code>npm init</code>初始化后会有一个 hexo 官方提供的博客样例，我们可以通过在 cmd 中输入:</p>
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ npm server</span><br></pre></td></tr></table></figure>
-<p>来开启本地服务器，你想会看到如下输出:<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo03.png" alt="hexo"><br>访问控制台输出的网站即可查看样例博客<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo04.png" alt="hexo"><br>使用<code>ctrl + c</code>来关闭服务器</p>
+<ul>
+<li>scaffolds: 这是你博客的模板文件夹，你可以在这里编写模板文件</li>
+<li>source: 这是你博客的源码文件夹<ul>
+<li>_draft: 这是你博客的草稿文件夹，你可以在这里编写 markdown 草稿</li>
+<li>_posts: 这是你博客的博客文件夹，你可以在这里编写 markdown 文档，这里存放的都是你要发布到博客网站上的文档</li>
+</ul>
+</li>
+<li>public: 执行<code>hexo generate</code>后生成的编译结果文件夹，你可以在这里查看你的博客</li>
+<li>themes: 这是你博客的主题文件夹，你可以把喜欢的主题放到这个文件夹中</li>
+<li>_config.yml: 这是你博客的配置文件，你可以在这里配置你的博客名称、主题、标签、分类、作者、邮箱、GitHub 链接等</li>
+<li>在这些文件或文件夹中除了配置要用到 _config.yml 文件外，用到最多的就是 _post 文件夹了。<br>刚刚使用<code>npm init</code>初始化后会有一个 hexo 官方提供的博客样例，我们可以通过在 cmd 中输入:<br><code>$ npm server</code><br>来开启本地服务器，你想会看到如下输出:<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo03.png" alt="hexo"><br>访问控制台输出的网站即可查看样例博客<br><img src="/source/_posts/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/hexo04.png" alt="hexo"><br>使用<code>ctrl + c</code>来关闭服务器</li>
+</ul>
 <h1 id="主题"><a href="#主题" class="headerlink" title="主题"></a>主题</h1><h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1>]]></content>
   </entry>
 </search>
