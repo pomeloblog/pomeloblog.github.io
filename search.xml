@@ -99,4 +99,210 @@
 <p>一切完成后便可以执行<code>hexo deploy</code>命令来一键部署自己的博客到github pages，别人只需要访问你的站点地址即可访问你的博客。<br>这样我们就完成了博客搭建的所有工作，虽然当前的博客有些简陋，我们可以通过相关主题的官方文档来进行自定义美化。<br>如果觉得这个教程对大家有所帮助，欢迎点赞、收藏、关注我的博客。</p>
 ]]></content>
   </entry>
+  <entry>
+    <title>跨域及其解决方案</title>
+    <url>/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<h2 id="浏览器的同源策略"><a href="#浏览器的同源策略" class="headerlink" title="浏览器的同源策略"></a>浏览器的同源策略</h2><h3 id="什么是源"><a href="#什么是源" class="headerlink" title="什么是源"></a>什么是源</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line">源 = 协议 + 域名 +  端口号</span><br><span class="line">       |      |        |</span><br><span class="line">     http:<span class="comment">//localhost:8080</span></span><br></pre></td></tr></table></figure>
+
+<p>源分为两类</p>
+<ul>
+<li>同源</li>
+<li>非同源（跨域）</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">源1</th>
+<th align="center">源2</th>
+<th align="center">是否同源</th>
+<th align="center">原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><a href="http://www.xyz.com/home">http://www.xyz.com/home</a></td>
+<td align="center"><a href="https://www.xyz.com/home">https://www.xyz.com/home</a></td>
+<td align="center">×非同源️</td>
+<td align="center">协议不同</td>
+</tr>
+<tr>
+<td align="center"><a href="http://www.xyz.com/home">http://www.xyz.com/home</a></td>
+<td align="center"><a href="http://mail.xyz.com/home">http://mail.xyz.com/home</a></td>
+<td align="center">×非同源️</td>
+<td align="center">域名不同</td>
+</tr>
+<tr>
+<td align="center"><a href="http://www.xyz.com:8080/home">http://www.xyz.com:8080/home</a></td>
+<td align="center"><a href="http://www.xyz.com:8090/home">http://www.xyz.com:8090/home</a></td>
+<td align="center">×非同源️</td>
+<td align="center">端口不同</td>
+</tr>
+<tr>
+<td align="center"><a href="http://www.xyz.com:8080/home">http://www.xyz.com:8080/home</a></td>
+<td align="center"><a href="http://www.xyz.com:8080/search">http://www.xyz.com:8080/search</a></td>
+<td align="center">√同源</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意：源是不看路径的，只看协议、域名和端口号，比如表格最后一行两个路径中虽然一个为<code>/home</code>一个为<code>/search</code>，但这两个路径的协议、域名和端口号都相同，所以就认为这两个路径同源。</p>
+</blockquote>
+<blockquote>
+<p>补充：同源之间相互请求称为同源请求，比如<code>http://aaa.com/user</code>去请求<code>http://aaa.com/user/login</code>就成为同源请求。</p>
+</blockquote>
+<h3 id="跨域受到的限制"><a href="#跨域受到的限制" class="headerlink" title="跨域受到的限制"></a>跨域受到的限制</h3><p>跨域是浏览器的一种同源策略的限制，所以当进行跨域请求时浏览器会针对跨域做出一些限制</p>
+<blockquote>
+<p>假设<strong>源A</strong>和<strong>源B</strong>非同源</p>
+</blockquote>
+<ol>
+<li><p>DOM 访问限制</p>
+<p> <strong>源A</strong>的脚本不能读取和操作<strong>源B</strong>的DOM</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">iframe</span> <span class="attr">id</span>=<span class="string">&quot;framePage&quot;</span> <span class="attr">src</span>=<span class="string">&quot;./demo.html&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">iframe</span>&gt;</span> </span><br><span class="line"><span class="comment">&lt;!--&lt;iframe id=&quot;framePage&quot; src=&quot;https://www.baidu.com&quot;&gt;&lt;/iframe&gt;--&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> &gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="comment">// 获取iframe标签中的页面DOM</span></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">function</span> <span class="title function_">showDOM</span>(<span class="params"></span>)&#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> framePage = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;framePage&#x27;</span>)</span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 同源的可以获取，非同源的无法获取</span></span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(framePage.<span class="property">contentWindow</span>.<span class="property">document</span>) </span></span><br><span class="line"><span class="language-javascript">  &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>Cookie 访问限制</p>
+<p><strong>源A</strong>的脚本不能读取和操作<strong>源B</strong>的Cookie</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">iframe</span> <span class="attr">id</span>=<span class="string">&quot;framePage&quot;</span> <span class="attr">src</span>=<span class="string">&quot;./demo.html&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">iframe</span>&gt;</span> </span><br><span class="line"><span class="comment">&lt;!--&lt;iframe id=&quot;baidu&quot; src=&quot;http://www.baidu.com&quot;&gt;&lt;/iframe&gt;--&gt;</span></span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> &gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">function</span> <span class="title function_">showCookie</span>(<span class="params"></span>)&#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> <span class="variable language_">document</span> = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;framePage&#x27;</span>).<span class="property">contentWindow</span>.<span class="property">document</span></span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 同源的可以获取，非同源的无法获取</span></span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">document</span>.<span class="property">cookie</span>)</span></span><br><span class="line"><span class="language-javascript">  &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+<li><p>Ajax 响应数据限制（最常见）</p>
+<p><strong>源A</strong>可以给<strong>源B</strong>发送请求，但是<strong>源A</strong>无法获取<strong>源B</strong>响应回来的数据</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">&quot;text/javascript&quot;</span> &gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript"> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">showCookie</span>(<span class="params"></span>)&#123;</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> url = <span class="string">&#x27;https://www.toutiao.com/hot-event/hot-board/?origin=toutiao_pc&#x27;</span></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">let</span> result = <span class="keyword">await</span> <span class="title function_">fetch</span>(url)</span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">let</span> data = <span class="keyword">await</span> result.<span class="title function_">json</span>()</span></span><br><span class="line"><span class="language-javascript">    <span class="comment">// 同源的可以获取，非同源的无法获取</span></span></span><br><span class="line"><span class="language-javascript">    <span class="variable language_">console</span>.<span class="title function_">log</span>(data)</span></span><br><span class="line"><span class="language-javascript">  &#125;</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ol>
+<li><p>跨域的限制仅存在浏览器端，服务端不存在跨域限制</p>
+</li>
+<li><p>虽然同源策略限制了Ajax请求的响应数据，但是请求本身可以发出去，只是响应的数据接收不到</p>
+<p><img src="/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/%E8%B7%A8%E5%9F%9F01.png" alt="跨域01.png"></p>
+</li>
+<li><p><code>&lt;link&gt;</code>、<code>&lt;script&gt;</code>、<code>&lt;img&gt;</code>…这些标签发出的请求也存在跨域问题，只不过浏览器对这些标签的跨域不做严格的要求，几乎无影响</p>
+</li>
+</ol>
+<h2 id="CORS-解决Ajax跨域问题"><a href="#CORS-解决Ajax跨域问题" class="headerlink" title="CORS 解决Ajax跨域问题"></a>CORS 解决Ajax跨域问题</h2><h3 id="CORS-概述"><a href="#CORS-概述" class="headerlink" title="CORS 概述"></a>CORS 概述</h3><p>CORS 全称：<code>Cross-Origin Resource Sharing</code>（跨域资源共享），是用于控制&#x3D;&#x3D;浏览器&#x3D;&#x3D;校验跨域请求的一套规范，服务器依照 CORS 规范，&#x3D;&#x3D;添加特定响应头来控制浏览器校验&#x3D;&#x3D;，大致规则如下：</p>
+<ul>
+<li>服务器明确表示拒绝跨域请求，或没有表示，则浏览器校验不通过</li>
+<li>服务器明确表示允许跨域请求，则浏览器校验通过</li>
+</ul>
+<h3 id="简单请求和复杂请求"><a href="#简单请求和复杂请求" class="headerlink" title="简单请求和复杂请求"></a>简单请求和复杂请求</h3><p>CORS 会把请求分为两类，分别是： 简单请求和复杂请求，两种请求利用CORS解决跨域问题时有些许不同</p>
+<p>那应该怎么去区分简单请求和复杂请求呢？</p>
+<table>
+<thead>
+<tr>
+<th align="left">简单请求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">请求方法为：GET、POST、HEAD</td>
+</tr>
+<tr>
+<td align="left">请求头字段符合<a href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">《CORS安全规范》</a><br/>（只要不手动修改请求头，一般都能符合规范）</td>
+</tr>
+<tr>
+<td align="left">请求头的Content-Type的值只能是以下三种：<br/>1. text&#x2F;plain<br/>2. multipart&#x2F;form-data<br/>3. application&#x2F;x-www-form-urlencoded</td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th align="left">复杂请求</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1. 不是简单请求，就是复杂请求<br/>2. 复杂请求在发出真正请求前会先发送预检请求</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>关于预检请求</p>
+<ul>
+<li>发送时机：在实际跨域请求之前由浏览器自动发出</li>
+<li>主要作用：向服务器确认是否允许接下来的跨域请求</li>
+<li>基本流程：先发起OPTIONS预检请求，如果请求通过，则发出真正的跨域请求</li>
+<li>请求头内容：一个OPTIONS预检请求，通常会包含如下请求头：<table>
+<thead>
+<tr>
+<th>请求头</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Origin</td>
+<td>发起请求的源</td>
+</tr>
+<tr>
+<td>Access-Control-Request-Method</td>
+<td>实际请求的 HTTP 方法</td>
+</tr>
+<tr>
+<td>Access-Control-Request-Headers</td>
+<td>实际请求中使用的自定义头（如果有的话）</td>
+</tr>
+</tbody></table>
+<img src="/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/%E8%B7%A8%E5%9F%9F02.png" alt="跨域02.png"></li>
+</ul>
+</blockquote>
+<h2 id="跨域解决方案"><a href="#跨域解决方案" class="headerlink" title="跨域解决方案"></a>跨域解决方案</h2><h3 id="CORS-解决"><a href="#CORS-解决" class="headerlink" title="CORS 解决"></a>CORS 解决</h3><h4 id="CORS-解决简单请求跨域"><a href="#CORS-解决简单请求跨域" class="headerlink" title="CORS 解决简单请求跨域"></a>CORS 解决简单请求跨域</h4><p><strong>思路</strong>：服务器在给出响应时，通过添加Access-Control-Allow-Origin响应头，来明确表达允许某个源发起跨域请求，随后浏览器在校验时，直接通过。</p>
+<p><img src="/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/%E8%B7%A8%E5%9F%9F03.png" alt="跨域03.png"></p>
+<p>示例代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">#<span class="comment">// 服务端</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/user&#x27;</span>,<span class="function">(<span class="params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span>,<span class="string">&#x27;http://127.0.0.1:8080/&#x27;</span>)</span><br><span class="line">  <span class="comment">// res.setHeader(&#x27;Access-Control-Allow-Origin&#x27;,&#x27;*&#x27;) // 设置为所有请求均可访问，不推荐</span></span><br><span class="line">  res.<span class="title function_">send</span>()  <span class="comment">// 发送响应数据</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="comment">// 注意，当在开发阶段时，使用浏览器向本地服务器发送请求，</span></span><br><span class="line"><span class="comment">// 服务器在添加Access-Control-Allow-Origin响应头时</span></span><br><span class="line"><span class="comment">// 不要把127.0.0.1改成localhost</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="CORS-解决复杂请求跨域"><a href="#CORS-解决复杂请求跨域" class="headerlink" title="CORS 解决复杂请求跨域"></a>CORS 解决复杂请求跨域</h4><p><strong>步骤</strong>：</p>
+<ol>
+<li>服务器先通过浏览器的预检请求，服务器需要返回如下响应头：</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>响应头</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Access-Control-Allow-Origin</td>
+<td>允许的源</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Methods</td>
+<td>允许的方法</td>
+</tr>
+<tr>
+<td>Access-Control-Allow-Headers</td>
+<td>允许的自定义头</td>
+</tr>
+<tr>
+<td>Access-Control-Max-Age</td>
+<td>预检请求的结果缓存时间（可选）</td>
+</tr>
+</tbody></table>
+<p><img src="/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/%E8%B7%A8%E5%9F%9F04.png" alt="跨域04.png"></p>
+<p>示例代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">app.<span class="title function_">options</span>(<span class="string">&#x27;/user&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 设置允许的跨域请求源</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span>, <span class="string">&#x27;http://127.0.0.1:5500&#x27;</span>)</span><br><span class="line">  <span class="comment">// 设置允许的请求方法</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Allow-Methods&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>)</span><br><span class="line">  <span class="comment">// 设置允许的请求头</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Allow-Headers&#x27;</span>, <span class="string">&#x27;school&#x27;</span>)</span><br><span class="line">  <span class="comment">// 发送响应</span></span><br><span class="line">  res.<span class="title function_">send</span>()</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通常还会在请求头中加上预检请求的缓存时间，当缓存时间未过期时再次发送相同复杂请求时无需预检</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 设置预检请求的缓存时间（可选）</span></span><br><span class="line">res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Max-Age&#x27;</span>, <span class="number">7200</span>)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<ol start="2">
+<li>处理实际的跨域请求（与处理简单请求跨域的方式略有不同）</li>
+</ol>
+<p><img src="/2024/08/03/%E8%B7%A8%E5%9F%9F%E5%8F%8A%E5%85%B6%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/%E8%B7%A8%E5%9F%9F03.png" alt="跨域03.png"></p>
+<p>示例代码：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/students&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 设置允许的跨域请求源</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span>, <span class="string">&#x27;http://127.0.0.1:5500&#x27;</span>)</span><br><span class="line">  <span class="comment">// 设置一个自定义响应头</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;abc&#x27;</span>,<span class="number">123</span>)</span><br><span class="line">  <span class="comment">// 设置允许暴露给客户端的响应头（必须有，默认js是不能访问后端自定义设置的响应头的，需要后端暴露）</span></span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Access-Control-Expose-Headers&#x27;</span>, <span class="string">&#x27;abc&#x27;</span>)</span><br><span class="line">  <span class="comment">// 发送响应数据</span></span><br><span class="line">  res.<span class="title function_">send</span>(students)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>借助 cors 库快速完成配置（node.js）</p>
+<p>安装cors库</p>
+<p><code>npm install cors</code></p>
+<p>最简单的配置：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 引入cors库</span></span><br><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">&#x27;cors&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//最简单的配置，允许所有源跨域，允许所有方法跨域</span></span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>())</span><br></pre></td></tr></table></figure>
+
+<p>比较完整的配置：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// cors中间件配置</span></span><br><span class="line"><span class="keyword">const</span> corsOptions = &#123;</span><br><span class="line">  <span class="attr">origin</span>: <span class="string">&#x27;http://127.0.0.1:5500&#x27;</span>, <span class="comment">// 允许的源</span></span><br><span class="line">  <span class="attr">methods</span>: [<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;PUT&#x27;</span>, <span class="string">&#x27;DELETE&#x27;</span>, <span class="string">&#x27;HEAD&#x27;</span>, <span class="string">&#x27;OPTIONS&#x27;</span>], <span class="comment">// 允许的方法</span></span><br><span class="line">  <span class="attr">allowedHeaders</span>: [<span class="string">&#x27;school&#x27;</span>], <span class="comment">// 允许的自定义头</span></span><br><span class="line">  <span class="attr">exposedHeaders</span>: [<span class="string">&#x27;abc&#x27;</span>], <span class="comment">// 要暴露的响应头</span></span><br><span class="line">  <span class="attr">optionsSuccessStatus</span>: <span class="number">200</span> <span class="comment">// 预检请求成功的状态码</span></span><br><span class="line">&#125;;</span><br><span class="line"> </span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cors</span>(corsOptions)); <span class="comment">// 使用cors中间件</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<br/>
+
+<h3 id="配置代理服务器解决跨域"><a href="#配置代理服务器解决跨域" class="headerlink" title="配置代理服务器解决跨域"></a>配置代理服务器解决跨域</h3><p><strong>思路</strong>：服务器之间是没有跨域问题的</p>
+<h4 id="自己配置代理服务器（node-js）"><a href="#自己配置代理服务器（node-js）" class="headerlink" title="自己配置代理服务器（node.js）"></a>自己配置代理服务器（node.js）</h4><p>方式：借助<code>http-proxy-middleware</code>配置代理</p>
+<p>安装<code>npm install http-proxy-middleware</code></p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 引入http-proxy-middleware包</span></span><br><span class="line"><span class="keyword">const</span> &#123;createProxyMiddleware&#125; = <span class="built_in">require</span>(<span class="string">&#x27;http-proxy-middleware&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 启动静态资源 确保页面跟服务器同一个源</span></span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>(<span class="string">&quot;./public&quot;</span>));</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&#x27;/api&#x27;</span>,<span class="title function_">createProxyMiddleware</span>(&#123;</span><br><span class="line">  <span class="comment">// 转发请求的目的地</span></span><br><span class="line">  <span class="attr">target</span>:<span class="string">&#x27;https://www.toutiao.com&#x27;</span>,</span><br><span class="line">  <span class="comment">// 是否允许跨域</span></span><br><span class="line">  <span class="attr">changeOrigin</span>:<span class="literal">true</span>,</span><br><span class="line">  <span class="attr">pathRewrite</span>:&#123;</span><br><span class="line">    <span class="comment">// 转发出去的路径自动把/api字段去掉</span></span><br><span class="line">    <span class="string">&#x27;^/api&#x27;</span>:<span class="string">&#x27;&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;))</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">8080</span>,<span class="function">()=&gt;</span>&#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;服务器启动，监听8080端口！&#x27;</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果可以修改后端代码，推荐使用CORS 去解决跨域问题，如果不能修改后端代码，推荐使用代理服务器解决跨域问题 </p>
+</blockquote>
+]]></content>
+  </entry>
 </search>
