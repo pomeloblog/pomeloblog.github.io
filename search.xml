@@ -147,7 +147,7 @@
 <p>注意：源是不看路径的，只看协议、域名和端口号，比如表格最后一行两个路径中虽然一个为<code>/home</code>一个为<code>/search</code>，但这两个路径的协议、域名和端口号都相同，所以就认为这两个路径同源。</p>
 </blockquote>
 <blockquote>
-<p>补充：同源之间相互请求称为同源请求，比如<code>http://aaa.com/user</code>去请求<code>http://aaa.com/user/login</code>就成为同源请求。</p>
+<p>补充：同源之间相互请求称为同源请求，比如<code>http://aaa.com/user</code>去请求<code>http://aaa.com/user/login</code>就称为同源请求。</p>
 </blockquote>
 <h3 id="跨域受到的限制"><a href="#跨域受到的限制" class="headerlink" title="跨域受到的限制"></a>跨域受到的限制</h3><p>跨域是浏览器的一种同源策略的限制，所以当进行跨域请求时浏览器会针对跨域做出一些限制</p>
 <blockquote>
@@ -173,7 +173,7 @@
 <li><p><code>&lt;link&gt;</code>、<code>&lt;script&gt;</code>、<code>&lt;img&gt;</code>…这些标签发出的请求也存在跨域问题，只不过浏览器对这些标签的跨域不做严格的要求，几乎无影响</p>
 </li>
 </ol>
-<h2 id="CORS-解决Ajax跨域问题"><a href="#CORS-解决Ajax跨域问题" class="headerlink" title="CORS 解决Ajax跨域问题"></a>CORS 解决Ajax跨域问题</h2><h3 id="CORS-概述"><a href="#CORS-概述" class="headerlink" title="CORS 概述"></a>CORS 概述</h3><p>CORS 全称：<code>Cross-Origin Resource Sharing</code>（跨域资源共享），是用于控制&#x3D;&#x3D;浏览器&#x3D;&#x3D;校验跨域请求的一套规范，服务器依照 CORS 规范，&#x3D;&#x3D;添加特定响应头来控制浏览器校验&#x3D;&#x3D;，大致规则如下：</p>
+<h2 id="CORS-概述"><a href="#CORS-概述" class="headerlink" title="CORS 概述"></a>CORS 概述</h2><h3 id="什么是-CORS"><a href="#什么是-CORS" class="headerlink" title="什么是 CORS ?"></a>什么是 CORS ?</h3><p>CORS 全称：<code>Cross-Origin Resource Sharing</code>（跨域资源共享），是用于控制浏览器校验跨域请求的一套规范，服务器依照 CORS 规范，添加特定响应头来控制浏览器校验，大致规则如下：</p>
 <ul>
 <li>服务器明确表示拒绝跨域请求，或没有表示，则浏览器校验不通过</li>
 <li>服务器明确表示允许跨域请求，则浏览器校验通过</li>
@@ -190,7 +190,7 @@
 <td align="left">请求方法为：GET、POST、HEAD</td>
 </tr>
 <tr>
-<td align="left">请求头字段符合<a href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">《CORS安全规范》</a><br/>（只要不手动修改请求头，一般都能符合规范）</td>
+<td align="left">请求头字段符合<a href="https://fetch.spec.whatwg.org/#cors-safelisted-request-header">《CORS安全规范》</a> (只要不手动修改请求头，一般都能符合规范)</td>
 </tr>
 <tr>
 <td align="left">请求头的Content-Type的值只能是以下三种：<br/>1. text&#x2F;plain<br/>2. multipart&#x2F;form-data<br/>3. application&#x2F;x-www-form-urlencoded</td>
